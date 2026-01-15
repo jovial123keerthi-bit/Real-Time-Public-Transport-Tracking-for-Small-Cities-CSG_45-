@@ -1,0 +1,2 @@
+# Real-Time-Public-Transport-Tracking-for-Small-Cities-CSG_45-
+The project aims to develop a real-time public transport tracking system for small cities to provide live bus location updates and estimated arrival times. By enabling commuters to track buses through a web-based platform, the system reduces waiting time and improves travel planning.This promotes reliable &amp; sustainable use of public transportation.
