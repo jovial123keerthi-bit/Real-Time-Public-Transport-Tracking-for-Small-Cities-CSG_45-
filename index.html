@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Real-Time Bus Tracking</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    h1 { text-align: center; margin-top: 20px; }
+    #map { height: 500px; width: 100%; margin-top: 20px; }
+    .info-container { display: flex; flex-wrap: wrap; justify-content: center; margin: 10px; }
+    .info-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 200px;
+      margin: 10px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+      background-color: #f9f9f9;
+    }
+    .info-card strong { display: block; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>Real-Time Bus Tracking Dashboard</h1>
+
+  <div class="info-container" id="infoContainer">
+    <!-- Bus info cards will be dynamically inserted here -->
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    // Initialize Socket.io
+    const socket = io();
+
+    // Initialize Leaflet map
+    const map = L.map('map').setView([12.9716, 77.5946], 13);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Bus markers object
+    const busMarkers = {};
+
+    // Custom bus icon
+    const busIcon = L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/61/61231.png', // bus icon URL
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    // Function to update or create info card
+    function updateBusCard(bus) {
+      let card = document.getElementById(`bus-${bus.id}`);
+      if (!card) {
+        card = document.createElement("div");
+        card.className = "info-card";
+        card.id = `bus-${bus.id}`;
+        card.innerHTML = `
+          <strong>Bus ${bus.id}</strong>
+          Route: <span class="route">—</span><br>
+          Speed: <span class="speed">—</span> km/h<br>
+          Last Updated: <span class="time">—</span>
+        `;
+        document.getElementById("infoContainer").appendChild(card);
+      }
+      card.querySelector(".route").innerText = bus.route || "—";
+      card.querySelector(".speed").innerText = bus.speed || "—";
+      card.querySelector(".time").innerText = new Date().toLocaleTimeString();
+    }
+
+    // Listen for bus updates
+    socket.on("bus-location-update", (bus) => {
+      const { id, lat, lng, speed, route } = bus;
+
+      // Update info card
+      updateBusCard(bus);
+
+      // Create marker if it doesn't exist
+      if (!busMarkers[id]) {
+        busMarkers[id] = L.marker([lat, lng], { icon: busIcon }).addTo(map)
+          .bindPopup(`Bus ${id}<br>Route: ${route}<br>Speed: ${speed} km/h`);
+      } else {
+        // Smoothly move marker
+        busMarkers[id].setLatLng([lat, lng]);
+        busMarkers[id].getPopup().setContent(`Bus ${id}<br>Route: ${route}<br>Speed: ${speed} km/h`);
+      }
+
+      // Optional: open popup
+      busMarkers[id].openPopup();
+    });
+  </script>
+
+</body>
+</html>
