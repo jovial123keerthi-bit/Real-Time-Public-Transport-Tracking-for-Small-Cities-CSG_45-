@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver Dashboard</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .dashboard {
+      background: white;
+      color: black;
+      padding: 30px;
+      border-radius: 15px;
+      width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .start {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .start:hover {
+      background-color: #218838;
+    }
+
+    .end {
+      background-color: #ffc107;
+    }
+
+    .end:hover {
+      background-color: #e0a800;
+    }
+
+    .breakdown {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .breakdown:hover {
+      background-color: #c82333;
+    }
+
+    .status-box {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .running {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .stopped {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    .breakdown-status {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard">
+  <h2>🚌 Driver Dashboard</h2>
+
+  <select id="busSelect">
+    <option value="1">Bus 1</option>
+    <option value="2">Bus 2</option>
+    <option value="3">Bus 3</option>
+  </select>
+
+  <button class="start" onclick="startTrip()">Start Trip</button>
+  <button class="end" onclick="endTrip()">End Trip</button>
+  <button class="breakdown" onclick="reportBreakdown()">Report Breakdown</button>
+
+  <div id="statusDisplay" class="status-box stopped">
+    Status: Stopped
+  </div>
+</div>
+
+<script>
+const socket = io();
+
+function getSelectedBus() {
+  return parseInt(document.getElementById("busSelect").value);
+}
+
+function updateStatusUI(status) {
+  const box = document.getElementById("statusDisplay");
+
+  if (status === "running") {
+    box.className = "status-box running";
+    box.innerText = "Status: Running 🟢";
+  } 
+  else if (status === "breakdown") {
+    box.className = "status-box breakdown-status";
+    box.innerText = "Status: Breakdown 🔴";
+  } 
+  else {
+    box.className = "status-box stopped";
+    box.innerText = "Status: Stopped ⚪";
+  }
+}
+
+function startTrip() {
+  socket.emit("start-trip", getSelectedBus());
+  updateStatusUI("running");
+}
+
+function endTrip() {
+  socket.emit("end-trip", getSelectedBus());
+  updateStatusUI("stopped");
+}
+
+function reportBreakdown() {
+  socket.emit("report-breakdown", getSelectedBus());
+  updateStatusUI("breakdown");
+}
+</script>
+
+</body>
+</html>

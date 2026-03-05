@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: linear-gradient(135deg, #141e30, #243b55);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      color: black;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 15px;
+      width: 400px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    input {
+      padding: 8px;
+      margin: 5px;
+      width: 80%;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .add { background: #28a745; color: white; }
+    .remove { background: #dc3545; color: white; }
+
+    .fleet-box {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .bus-item {
+      background: #f8f9fa;
+      color: black;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🚌 Admin Control Panel</h1>
+
+<div class="card">
+  <h3>Add New Bus</h3>
+  <input type="number" id="busId" placeholder="Bus ID"><br>
+  <input type="text" id="route" placeholder="Route"><br>
+  <button class="add" onclick="addBus()">Add Bus</button>
+</div>
+
+<div class="card">
+  <h3>Remove Bus</h3>
+  <input type="number" id="removeId" placeholder="Bus ID"><br>
+  <button class="remove" onclick="removeBus()">Remove Bus</button>
+</div>
+
+<div class="card">
+  <h3>Fleet Monitor</h3>
+  <div id="fleetContainer" class="fleet-box"></div>
+</div>
+
+<div class="card">
+  <h3>Analytics</h3>
+  <div id="analytics"></div>
+</div>
+
+<script>
+const socket = io();
+
+function addBus() {
+  const id = parseInt(document.getElementById("busId").value);
+  const route = document.getElementById("route").value;
+
+  const newBus = {
+    id,
+    lat: 12.9716,
+    lng: 77.5946,
+    speed: 0,
+    route,
+    capacity: 0
+  };
+
+  socket.emit("add-bus", newBus);
+}
+
+function removeBus() {
+  const id = parseInt(document.getElementById("removeId").value);
+  socket.emit("remove-bus", id);
+}
+
+socket.on("fleet-update", (buses) => {
+  const container = document.getElementById("fleetContainer");
+  container.innerHTML = "";
+
+  let totalCapacity = 0;
+
+  buses.forEach(bus => {
+    totalCapacity += bus.capacity;
+
+    container.innerHTML += `
+      <div class="bus-item">
+        Bus ${bus.id} | Route: ${bus.route} | Speed: ${bus.speed} km/h | Capacity: ${bus.capacity}%
+      </div>
+    `;
+  });
+
+  const avgCapacity = buses.length ? (totalCapacity / buses.length).toFixed(1) : 0;
+
+  document.getElementById("analytics").innerHTML = `
+    Total Buses: ${buses.length}<br>
+    Average Capacity: ${avgCapacity}%
+  `;
+});
+</script>
+
+</body>
+</html>

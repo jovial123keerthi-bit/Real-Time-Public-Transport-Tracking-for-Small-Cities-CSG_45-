@@ -19,8 +19,33 @@
       border-radius: 8px;
       box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
       background-color: #f9f9f9;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 15px rgba(0,0,0,0.3);
+}
     .info-card strong { display: block; margin-bottom: 5px; }
+    .capacity-indicator {
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.green {
+  background-color: #28a745;
+}
+
+.yellow {
+  background-color: #ffc107;
+  color: black;
+}
+
+.red {
+  background-color: #dc3545;
+}
   </style>
 </head>
 <body>
@@ -47,6 +72,59 @@
 
     // Bus markers object
     const busMarkers = {};
+    // 🛣 Route Coordinates (Example Route)
+const routeCoordinates = [
+  [12.9716, 77.5946],
+  [12.9730, 77.5960],
+  [12.9750, 77.6000],
+  [12.9780, 77.6030],
+  [12.9816, 77.6046]
+];
+
+// Draw route line on map
+const routeLine = L.polyline(routeCoordinates, {
+  color: "#007bff",
+  weight: 5,
+  opacity: 0.7
+}).addTo(map);
+
+// 🚌 Bus Stops
+const busStops = [
+  { name: "Stop 1", lat: 12.9716, lng: 77.5946 },
+  { name: "Stop 2", lat: 12.9750, lng: 77.6000 },
+  { name: "Stop 3", lat: 12.9816, lng: 77.6046 }
+];
+
+// Add stop markers
+busStops.forEach(stop => {
+  L.marker([stop.lat, stop.lng])
+    .addTo(map)
+    .bindPopup(`🚌 ${stop.name}`);
+});
+
+    // Destination Bus Stop (example location)
+const destination = {
+  lat: 12.9750,
+  lng: 77.6000
+};
+
+// Function to calculate distance between 2 points (Haversine Formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // Distance in KM
+}
 
     // Custom bus icon
     const busIcon = L.icon({
@@ -56,44 +134,91 @@
     });
 
     // Function to update or create info card
-    function updateBusCard(bus) {
-      let card = document.getElementById(`bus-${bus.id}`);
-      if (!card) {
-        card = document.createElement("div");
-        card.className = "info-card";
-        card.id = `bus-${bus.id}`;
-        card.innerHTML = `
-          <strong>Bus ${bus.id}</strong>
-          Route: <span class="route">—</span><br>
-          Speed: <span class="speed">—</span> km/h<br>
-          Last Updated: <span class="time">—</span>
-        `;
-        document.getElementById("infoContainer").appendChild(card);
-      }
-      card.querySelector(".route").innerText = bus.route || "—";
-      card.querySelector(".speed").innerText = bus.speed || "—";
-      card.querySelector(".time").innerText = new Date().toLocaleTimeString();
-    }
+    function updateBusCard(bus, etaMinutes) {
+    
+  let card = document.getElementById(`bus-${bus.id}`);
+
+  if (!card) {
+    card = document.createElement("div");
+    card.className = "info-card";
+    card.id = `bus-${bus.id}`;
+      card.innerHTML = `
+  <strong>Bus ${bus.id}</strong>
+  Route: <span class="route">—</span><br>
+  Speed: <span class="speed">—</span> km/h<br>
+  Capacity: <span class="capacity">—</span>%<br>
+  ETA: <span class="eta">—</span> minutes<br>
+  <div class="capacity-indicator"></div>
+  Last Updated: <span class="time">—</span>
+`;
+    document.getElementById("infoContainer").appendChild(card);
+  }
+
+  // Update text values
+  card.querySelector(".route").innerText = bus.route || "—";
+  card.querySelector(".speed").innerText = bus.speed || "—";
+  card.querySelector(".capacity").innerText = bus.capacity || "—";
+  card.querySelector(".eta").innerText = etaMinutes;
+  card.querySelector(".time").innerText = new Date().toLocaleTimeString();
+  
+
+  // Capacity Color Logic
+  const indicator = card.querySelector(".capacity-indicator");
+
+  if (bus.capacity < 40) {
+    indicator.className = "capacity-indicator green";
+    indicator.innerText = "🟢 Low Crowd";
+  } 
+  else if (bus.capacity < 80) {
+    indicator.className = "capacity-indicator yellow";
+    indicator.innerText = "🟡 Medium Crowd";
+  } 
+  else {
+    indicator.className = "capacity-indicator red";
+    indicator.innerText = "🔴 Full";
+  }
+  // 🔴 Highlight full bus with red border
+if (bus.capacity >= 80) {
+  card.style.border = "2px solid #dc3545";
+} else {
+  card.style.border = "1px solid #ccc";
+}
+
+}
 
     // Listen for bus updates
     socket.on("bus-location-update", (bus) => {
-      const { id, lat, lng, speed, route } = bus;
+      const { id, lat, lng, speed, route, capacity } = bus;
+      // Calculate Distance to Destination
+const distance = calculateDistance(lat, lng, destination.lat, destination.lng);
+
+// Avoid divide by zero
+let etaMinutes = 0;
+if (speed > 0) {
+  etaMinutes = Math.round((distance / speed) * 60);
+}
 
       // Update info card
-      updateBusCard(bus);
+      updateBusCard(bus, etaMinutes);
 
       // Create marker if it doesn't exist
       if (!busMarkers[id]) {
         busMarkers[id] = L.marker([lat, lng], { icon: busIcon }).addTo(map)
-          .bindPopup(`Bus ${id}<br>Route: ${route}<br>Speed: ${speed} km/h`);
+         .bindPopup(`Bus ${id}<br>
+Route: ${route}<br>
+Speed: ${speed} km/h<br>
+Capacity: ${capacity}%`);
       } else {
         // Smoothly move marker
         busMarkers[id].setLatLng([lat, lng]);
-        busMarkers[id].getPopup().setContent(`Bus ${id}<br>Route: ${route}<br>Speed: ${speed} km/h`);
+        busMarkers[id].getPopup().setContent(`Bus ${id}<br>
+Route: ${route}<br>
+Speed: ${speed} km/h<br>
+Capacity: ${capacity}%`);
       }
 
       // Optional: open popup
-      busMarkers[id].openPopup();
+     
     });
   </script>
 
