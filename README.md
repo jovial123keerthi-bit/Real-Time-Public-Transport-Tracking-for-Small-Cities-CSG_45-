@@ -12,7 +12,7 @@ This project demonstrates the use of **Node.js, Express, WebSockets, and Leaflet
 
  🚀 **Features**
 
- 🗺 Passenger Dashboard
+ 🗺 **Passenger Dashboard__
 - View live bus locations on an interactive map
 - See bus route, speed, and passenger capacity
 - ETA (Estimated Time of Arrival) calculation
@@ -43,6 +43,7 @@ Admin Panel
 ---
 
 All components communicate with the **Node.js backend server** using **Socket.IO** for real-time updates.
+
 Client Dashboards
 │
 │ WebSocket (Socket.IO)
@@ -114,6 +115,7 @@ Mobile application for passengers
 Advanced analytics and route optimization
 
 ⭐Project Screenshots
+
 
 
 
