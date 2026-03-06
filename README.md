@@ -1,8 +1,8 @@
-🚌 Real-Time Bus Tracking and Fleet Management System
+🚌 Real-Time Public Transport Tracking for small cities
 
-📌 Project Overview
+📌 **Project Overview**
 
-The **Real-Time Bus Tracking and Fleet Management System** is a web-based application that allows users to track buses in real time on a map. It provides separate dashboards for passengers, drivers, and administrators.
+This project is a web-based application that allows users to track buses in real time on a map. It provides separate dashboards for passengers, drivers, and administrators.
 
 The system simulates bus movement and updates their location using **Socket.IO**, enabling real-time communication between the server and connected clients.
 
@@ -10,7 +10,7 @@ This project demonstrates the use of **Node.js, Express, WebSockets, and Leaflet
 
 ---
 
- 🚀 Features
+ 🚀 **Features**
 
  🗺 Passenger Dashboard
 - View live bus locations on an interactive map
@@ -21,25 +21,27 @@ This project demonstrates the use of **Node.js, Express, WebSockets, and Leaflet
 
 ---
 
- 🚍 Driver Dashboard
+ 🚍**Driver Dashboard**
 - Start trip
 - End trip
 - Report breakdown
 - View current trip status
 ---
 
-🧑‍💼 Admin Panel
+🧑‍💼**Admin Panel**
 - Add new buses to the fleet
 - Remove buses
 - Monitor fleet status
 - View basic analytics (total buses and average capacity)
 ---
- 🏗 System Architecture
+ 🏗 **System Architecture**
 
 Passenger Dashboard  
 Driver Dashboard  
 Admin Panel  
+
 ---
+
 All components communicate with the **Node.js backend server** using **Socket.IO** for real-time updates.
 Client Dashboards
 │
@@ -49,6 +51,7 @@ Node.js + Express Server
 │
 ▼
 Bus Simulation Engine
+
 ---
 🛠 Technologies Used
 
@@ -111,6 +114,7 @@ Mobile application for passengers
 Advanced analytics and route optimization
 
 ⭐Project Screenshots
+
 
 
 
