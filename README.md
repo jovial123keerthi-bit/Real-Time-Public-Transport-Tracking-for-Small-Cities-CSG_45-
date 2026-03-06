@@ -75,7 +75,7 @@ project-folder
 ⚙️ Installation and Setup
 
 1️⃣ Clone the repository
-git clone https://github.com/your-username/bus-tracking-system.git
+git clone https://github.com/jovial123keerthi/bus-tracking-system.git
 
 2️⃣ Navigate to the project folder
 cd bus-tracking-system
@@ -108,4 +108,5 @@ Mobile application for passengers
 Advanced analytics and route optimization
 
 ⭐Project Screenshots
+
 
