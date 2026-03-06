@@ -19,24 +19,27 @@ This project demonstrates the use of **Node.js, Express, WebSockets, and Leaflet
 - Bus stop visualization
 - Crowd level indicators (Low / Medium / Full)
 
+---
+
  🚍 Driver Dashboard
 - Start trip
 - End trip
 - Report breakdown
 - View current trip status
+---
 
 🧑‍💼 Admin Panel
 - Add new buses to the fleet
 - Remove buses
 - Monitor fleet status
 - View basic analytics (total buses and average capacity)
-
+---
  🏗 System Architecture
 
 Passenger Dashboard  
 Driver Dashboard  
 Admin Panel  
-
+---
 All components communicate with the **Node.js backend server** using **Socket.IO** for real-time updates.
 Client Dashboards
 │
@@ -46,7 +49,7 @@ Node.js + Express Server
 │
 ▼
 Bus Simulation Engine
-
+---
 🛠 Technologies Used
 
 - **Node.js** – Backend runtime
@@ -55,7 +58,7 @@ Bus Simulation Engine
 - **Leaflet.js** – Interactive maps
 - **OpenStreetMap** – Map tiles
 - **HTML / CSS / JavaScript** – Frontend development
-
+---
  📂 Project Structure
 
 project-folder
@@ -108,5 +111,6 @@ Mobile application for passengers
 Advanced analytics and route optimization
 
 ⭐Project Screenshots
+
 
 
